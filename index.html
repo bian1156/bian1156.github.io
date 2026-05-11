@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小边代肝工作室 · 鸣潮专业代练</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #030608;
+    --cyan: #00e5ff;
+    --cyan-bright: #00f5ff;
+    --cyan-dim: rgba(0,229,255,0.25);
+    --cyan-glow: rgba(0,229,255,0.4);
+    --magenta: #ff0060;
+    --magenta-dim: rgba(255,0,96,0.25);
+    --green: #00ff88;
+    --text: #d0dce8;
+    --text-dim: #3e5570;
+    --text-bright: #f0f6ff;
+    --card-bg: rgba(6,12,22,0.92);
+    --border: rgba(0,229,255,0.08);
+    --border-hover: rgba(0,229,255,0.25);
+    --radius: 3px;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', 'Share Tech Mono', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ====== 网格背景 ====== */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ====== 数据流粒子 ====== */
+  .data-stream {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .data-stream .char {
+    position: absolute;
+    top: -20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    opacity: 0;
+    animation: dataFall linear infinite;
+  }
+  @keyframes dataFall {
+    0% { transform: translateY(0); opacity: 0; }
+    5% { opacity: 0.15; }
+    90% { opacity: 0.08; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  /* ====== 背景光晕 ====== */
+  .bg-orbs {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+  }
+  .bg-orbs .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    animation: orbMove 25s infinite alternate ease-in-out;
+  }
+  .orb1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,229,255,0.12), transparent 70%); top: -15%; left: -10%; }
+  .orb2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,0,96,0.08), transparent 70%); bottom: -15%; right: -10%; animation-delay: -8s; }
+  .orb3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,255,136,0.06), transparent 70%); top: 50%; left: 40%; animation-delay: -16s; }
+  @keyframes orbMove {
+    0% { transform: translate(0,0) scale(1); }
+    25% { transform: translate(40px,-30px) scale(1.08); }
+    50% { transform: translate(-30px,40px) scale(0.94); }
+    75% { transform: translate(20px,10px) scale(1.04); }
+    100% { transform: translate(-10px,-20px) scale(1); }
+  }
+
+  /* ====== 水印 ====== */
+  .watermark-layer {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+  .watermark-layer .wm {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px, 4vw, 50px);
+    font-weight: 900;
+    color: rgba(0,229,255,0.025);
+    transform: rotate(-30deg);
+    user-select: none;
+    white-space: nowrap;
+    letter-spacing: 6px;
+  }
+
+  /* ====== HUD 顶栏 ====== */
+  .hud-bar {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+  .hud-bar .hud-left { display: flex; align-items: center; gap: 16px; }
+  .hud-bar .hud-right { display: flex; align-items: center; gap: 16px; }
+  .hud-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .hud-dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .hud-dot.warn { background: var(--magenta); box-shadow: 0 0 6px var(--magenta); }
+  .hud-bar .time { color: var(--cyan); font-variant-numeric: tabular-nums; }
+  .hud-bar .sys-id { color: var(--magenta); }
+
+  /* ====== 主容器 ====== */
+  .main-container {
+    position: relative; z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 10px 20px 40px;
+  }
+
+  /* ====== Hero ====== */
+  .hero {
+    text-align: center;
+    padding: 40px 20px 24px;
+    position: relative;
+  }
+  .hero-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* 顶部装饰线 */
+  .hero-frame {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .hero-frame .h-line {
+    height: 1px; width: 80px;
+    background: linear-gradient(90deg, transparent, var(--cyan));
+  }
+  .hero-frame .h-line.right {
+    background: linear-gradient(90deg, var(--cyan), transparent);
+  }
+  .hero-frame .h-node {
+    width: 10px; height: 10px;
+    border: 1px solid var(--cyan);
+    transform: rotate(45deg);
+    position: relative;
+  }
+  .hero-frame .h-node::after {
+    content: '';
+    position: absolute; inset: 3px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .hero-frame .h-dash {
+    width: 30px; height: 1px;
+    background: var(--cyan);
+    opacity: 0.5;
+  }
+
+  .hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 7vw, 50px);
+    font-weight: 900;
+    color: var(--text-bright);
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+    text-shadow:
+      0 0 30px rgba(0,229,255,0.6),
+      0 0 80px rgba(0,229,255,0.2),
+      0 0 120px rgba(0,229,255,0.1);
+  }
+  .hero .subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .hero .tag-row {
+    display: flex; gap: 6px; justify-content: center;
+    margin-top: 18px; flex-wrap: wrap;
+  }
+  .hero .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    padding: 3px 12px;
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 2px;
+    background: rgba(0,229,255,0.04);
+    letter-spacing: 1px;
+  }
+
+  /* ====== 工具栏 ====== */
+  .toolbar {
+    display: flex; justify-content: flex-end; gap: 8px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .toolbar button {
+    padding: 6px 16px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s;
+    letter-spacing: 1px;
+  }
+  .toolbar button:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 0 12px rgba(0,229,255,0.15);
+  }
+  .btn-edit { border-color: rgba(0,229,255,0.18); }
+  .btn-edit.active {
+    background: var(--cyan);
+    color: var(--bg);
+    border-color: var(--cyan);
+    font-weight: 700;
+    box-shadow: 0 0 20px rgba(0,229,255,0.5);
+  }
+
+  /* ====== 板块卡片 ====== */
+  .sections { display: flex; flex-direction: column; gap: 12px; }
+
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    position: relative;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s;
+    overflow: hidden;
+  }
+  /* 左侧霓虹条 */
+  .section-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 2px; height: 100%;
+    background: linear-gradient(180deg, var(--cyan), transparent 80%);
+    opacity: 0.7;
+  }
+  /* 顶部角标装饰 */
+  .section-card::after {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 20px; height: 20px;
+    border-top: 1px solid var(--border-hover);
+    border-right: 1px solid var(--border-hover);
+    opacity: 0.5;
+  }
+  .section-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 0 20px rgba(0,229,255,0.08);
+  }
+
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px;
+    background: rgba(0,229,255,0.025);
+    border-bottom: 1px solid rgba(0,229,255,0.06);
+    cursor: default;
+  }
+  .section-header .icon { font-size: 18px; }
+  .section-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px; font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    outline: none; display: inline-block;
+  }
+  .section-title[contenteditable="true"] {
+    border-bottom: 1px dashed var(--cyan-dim);
+    min-width: 60px;
+  }
+  .section-count {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--magenta);
+    margin-left: auto;
+    outline: none;
+    letter-spacing: 2px;
+    opacity: 0.6;
+  }
+  .section-count[contenteditable="true"] {
+    border-bottom: 1px dashed var(--magenta-dim);
+  }
+  .btn-del-section {
+    display: none;
+    background: none; border: 1px solid var(--magenta);
+    color: var(--magenta); border-radius: 2px;
+    padding: 2px 8px; font-size: 10px; cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .btn-del-section:hover { background: rgba(255,0,96,0.12); }
+  .edit-mode .btn-del-section { display: inline-block; }
+
+  /* ====== 价格行 ====== */
+  .price-table { width: 100%; }
+  .price-row {
+    display: flex; align-items: center;
+    padding: 11px 20px;
+    border-bottom: 1px solid rgba(0,229,255,0.03);
+    transition: background 0.2s;
+    position: relative;
+  }
+  .price-row:hover { background: rgba(0,229,255,0.025); }
+  .price-row:last-child { border-bottom: none; }
+  /* 行号指示器 */
+  .price-row::before {
+    content: '';
+    position: absolute; left: 8px; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--cyan);
+    opacity: 0.2;
+  }
+
+  .row-name {
+    flex: 1; font-size: 14px;
+    color: var(--text);
+    outline: none; display: inline-block;
+    padding-left: 6px;
+  }
+  .row-name[contenteditable="true"] { border-bottom: 1px dashed rgba(0,229,255,0.15); min-width: 80px; }
+  .row-desc {
+    flex: 0 0 auto; width: 90px; text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--text-dim);
+    outline: none; display: inline-block;
+    letter-spacing: 1px;
+  }
+  .row-desc[contenteditable="true"] { border-bottom: 1px dashed var(--text-dim); }
+  .row-price {
+    width: 100px; text-align: right;
+    font-family: 'Orbitron', monospace;
+    font-size: 17px; font-weight: 700;
+    color: var(--cyan-bright);
+    font-variant-numeric: tabular-nums;
+    outline: none; display: inline-flex;
+    align-items: center; justify-content: flex-end; gap: 2px;
+    text-shadow:
+      0 0 8px rgba(0,229,255,0.7),
+      0 0 20px rgba(0,229,255,0.3),
+      0 0 40px rgba(0,229,255,0.1);
+    letter-spacing: 1px;
+    padding-right: 4px;
+    position: relative;
+  }
+  .row-price::before {
+    content: '';
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 60%;
+    background: linear-gradient(180deg, var(--cyan), transparent);
+    opacity: 0.5;
+    margin-right: 8px;
+  }
+  .row-price .sym {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.7;
+    text-shadow: 0 0 6px rgba(0,229,255,0.5);
+  }
+  .row-price .num {
+    font-size: 17px;
+    font-weight: 900;
+    text-shadow:
+      0 0 8px rgba(0,229,255,0.8),
+      0 0 20px rgba(0,229,255,0.4);
+  }
+  .row-price[contenteditable="true"] { border-bottom: 1px dashed var(--cyan-dim); min-width: 50px; }
+  .row-price[contenteditable="true"]::before { display: none; }
+
+  .btn-del-row {
+    display: none;
+    margin-left: 8px;
+    width: 18px; height: 18px;
+    border-radius: 2px; border: 1px solid var(--magenta);
+    background: none; color: var(--magenta);
+    font-size: 10px; line-height: 1;
+    cursor: pointer; text-align: center;
+    flex-shrink: 0;
+  }
+  .edit-mode .btn-del-row { display: flex; align-items: center; justify-content: center; }
+
+  .add-row-btn {
+    display: none;
+    width: 100%; padding: 8px;
+    background: transparent;
+    border: 1px dashed rgba(0,255,136,0.15);
+    color: var(--green);
+    font-size: 11px; cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  .add-row-btn:hover { background: rgba(0,255,136,0.04); border-color: var(--green); }
+  .edit-mode .add-row-btn { display: block; }
+
+  .add-section-btn {
+    display: none;
+    padding: 12px;
+    background: transparent;
+    border: 1px dashed rgba(0,255,136,0.12);
+    border-radius: var(--radius);
+    color: var(--green);
+    font-size: 12px; cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  .add-section-btn:hover { background: rgba(0,255,136,0.03); border-color: var(--green); }
+  .edit-mode .add-section-btn { display: block; }
+
+  /* ====== 底部 ====== */
+  .footer {
+    margin-top: 28px;
+    text-align: center;
+    position: relative;
+  }
+  .footer-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-hover), transparent);
+    margin-bottom: 18px;
+  }
+  .footer-note {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 2;
+  }
+  .footer-note .hl { color: var(--cyan); font-weight: 600; }
+  .footer-platform {
+    margin-top: 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 20px;
+    border: 1px solid rgba(0,255,136,0.20);
+    border-radius: 2px;
+    background: rgba(0,255,136,0.04);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 1px;
+  }
+  .footer-platform .shield { font-size: 14px; }
+
+  /* ====== Toast ====== */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg);
+    border: 1px solid var(--border-hover);
+    border-radius: 2px;
+    padding: 8px 20px;
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; letter-spacing: 1px;
+    z-index: 999; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 15px rgba(0,229,255,0.15);
+  }
+  .toast.show { opacity: 1; }
+
+  /* ====== 编辑模式 ====== */
+  .edit-mode .section-title, .edit-mode .row-name, .edit-mode .row-price, .edit-mode .row-desc, .edit-mode .section-count { cursor: text; }
+
+  /* ====== 响应式 ====== */
+  @media (max-width: 640px) {
+    .main-container { padding: 8px 10px 30px; }
+    .section-header { padding: 10px 14px; }
+    .price-row { padding: 9px 14px; flex-wrap: wrap; }
+    .row-desc { width: 70px; font-size: 9px; }
+    .row-price { width: 70px; font-size: 12px; }
+    .hero h1 { font-size: 24px; letter-spacing: 3px; }
+    .hero .subtitle { font-size: 9px; letter-spacing: 2px; }
+    .hud-bar { font-size: 9px; padding: 6px 12px; }
+    .watermark-layer { grid-template-columns: repeat(2, 1fr); }
+    .hero-frame .h-line { width: 40px; }
+  }
+
+  /* ====== 欢迎横幅 ====== */
+  .welcome-banner {
+    margin: 0 0 16px 0;
+    border: 1px solid rgba(0,229,255,0.12);
+    border-radius: 3px;
+    background: rgba(0,229,255,0.03);
+    overflow: hidden;
+    position: relative;
+  }
+  .welcome-banner::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--cyan), var(--magenta));
+    opacity: 0.7;
+  }
+  .wb-inner { padding: 14px 18px; }
+  .wb-row {
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap;
+  }
+  .wb-item {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1; min-width: 200px;
+  }
+  .wb-icon { font-size: 22px; flex-shrink: 0; }
+  .wb-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px; font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    line-height: 1.4;
+  }
+  .wb-tag { color: var(--magenta); }
+  .wb-sub { font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; margin-top: 2px; }
+  .wb-price { color: var(--text); }
+  .wb-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px; font-weight: 700;
+    color: var(--magenta);
+    text-shadow: 0 0 10px rgba(255,0,96,0.5);
+    letter-spacing: 1px;
+  }
+  .wb-divider {
+    width: 1px; height: 40px;
+    background: linear-gradient(180deg, transparent, var(--cyan), transparent);
+    opacity: 0.3; flex-shrink: 0;
+  }
+  @media (max-width: 540px) {
+    .wb-divider { display: none; }
+    .wb-row { flex-direction: column; }
+    .wb-item { width: 100%; }
+  }
+
+  @media print {
+    .data-stream, .bg-orbs, .watermark-layer, .toolbar, .hud-bar,
+    .btn-del-row, .btn-del-section, .add-row-btn, .add-section-btn,
+    body::before, body::after { display: none !important; }
+    body { background: #fff; color: #000; }
+    .section-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .hero h1 { color: #00a0b0; text-shadow: none; }
+    .row-price { color: #0080a0; text-shadow: none; }
+    .section-title { color: #0080a0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 数据流 -->
+<div class="data-stream" id="dataStream"></div>
+
+<!-- 背景光晕 -->
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<!-- 水印 -->
+<div class="watermark-layer">
+  <div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div>
+  <div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div>
+  <div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div>
+  <div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div><div class="wm">小边代肝工作室</div>
+</div>
+
+<!-- HUD 顶栏 -->
+<div class="hud-bar">
+  <div class="hud-left">
+    <span><span class="hud-dot online"></span>SYSTEM ONLINE</span>
+    <span class="sys-id">ID:XBS-2077</span>
+  </div>
+  <div class="hud-right">
+    <span>WUTHERING WAVES</span>
+    <span class="time" id="hudTime">--:--:--</span>
+  </div>
+</div>
+
+<!-- 主容器 -->
+<div class="main-container">
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-frame">
+      <span class="h-line"></span>
+      <span class="h-dash"></span>
+      <span class="h-node"></span>
+      <span class="h-dash"></span>
+      <span class="h-line right"></span>
+    </div>
+    <h1>小边代肝工作室</h1>
+    <div class="subtitle">WUTHERING WAVES · Professional Boosting Service</div>
+    <div class="tag-row">
+      <span class="tag">⚡ 高效速通</span>
+      <span class="tag">🔒 安全稳定</span>
+      <span class="tag">✋ 纯手工代肝</span>
+      <span class="tag">🎯 满意为止</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button onclick="exportPage()">📸 截图导出</button>
+    <button class="btn-edit" id="btnEdit" onclick="toggleEdit()">✏️ 编辑模式</button>
+  </div>
+
+  <!-- 欢迎横幅 -->
+  <div class="welcome-banner">
+    <div class="wb-inner">
+      <div class="wb-row">
+        <div class="wb-item">
+          <span class="wb-icon">👋</span>
+          <div class="wb-text">
+            <div class="wb-title">欢迎光临小边代肝工作室</div>
+            <div class="wb-sub">感谢您的信任，我们将为您提供最专业的鸣潮代练服务</div>
+          </div>
+        </div>
+        <div class="wb-divider"></div>
+        <div class="wb-item wb-discount">
+          <span class="wb-icon">🎁</span>
+          <div class="wb-text">
+            <div class="wb-title wb-tag">老客户专享</div>
+            <div class="wb-sub wb-price">全系服务 <span class="wb-num">9折</span> 优惠</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sections" id="sections">
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">📜</span>
+        <span class="section-title" data-field="title">主线任务</span>
+        <span class="section-count" data-field="count">STORY</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">第一章</span><span class="row-desc">~20MIN</span><span class="row-price">¥15</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">第二章（上）</span><span class="row-desc">~40MIN</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">第二章（下）</span><span class="row-desc">~40MIN</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">第三章</span><span class="row-desc">~60MIN</span><span class="row-price">¥30</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">第四章</span><span class="row-desc">~80MIN</span><span class="row-price">¥45</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">第五章</span><span class="row-desc">~100MIN</span><span class="row-price">¥60</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">第六~七章</span><span class="row-desc">~150MIN</span><span class="row-price">¥80</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">第八~九章</span><span class="row-desc">~200MIN</span><span class="row-price">¥120</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">⚔️</span>
+        <span class="section-title" data-field="title">角色培养</span>
+        <span class="section-count" data-field="count">LEVEL UP</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">1-40级</span><span class="row-desc">含材料</span><span class="row-price">¥15</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">40-50级</span><span class="row-desc">含材料</span><span class="row-price">¥25</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">50-60级</span><span class="row-desc">含材料</span><span class="row-price">¥30</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">60-70级</span><span class="row-desc">含材料</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">70-80级</span><span class="row-desc">含材料</span><span class="row-price">¥80</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">80-90级</span><span class="row-desc">含材料</span><span class="row-price">¥120</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">✨</span>
+        <span class="section-title" data-field="title">技能/天赋</span>
+        <span class="section-count" data-field="count">SKILL</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">1-6级</span><span class="row-desc">每级</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">7-8级</span><span class="row-desc">每级</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">9-10级</span><span class="row-desc">每级</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">🔮</span>
+        <span class="section-title" data-field="title">声骸系统</span>
+        <span class="section-count" data-field="count">ECHO</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">声骸副本 1-13层</span><span class="row-desc">全通</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">声骸副本 14-19层</span><span class="row-desc">全通</span><span class="row-price">¥35</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">指定套装刷取</span><span class="row-desc">每件</span><span class="row-price">¥30</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">指定主词条</span><span class="row-desc">每件</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">完美胚子（双暴+攻击%）</span><span class="row-desc">每件</span><span class="row-price">¥80</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">🗺️</span>
+        <span class="section-title" data-field="title">探索度</span>
+        <span class="section-count" data-field="count">EXPLORE</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">单区域 50% 探索</span><span class="row-desc">~30MIN</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">单区域 100% 探索</span><span class="row-desc">~90MIN</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">全地图 100% 探索</span><span class="row-desc">含收集</span><span class="row-price">¥200</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">📅</span>
+        <span class="section-title" data-field="title">日常/周常</span>
+        <span class="section-count" data-field="count">DAILY</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">每日委托</span><span class="row-desc">单次</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">体力清空</span><span class="row-desc">单次</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">周本 BOSS</span><span class="row-desc">每周</span><span class="row-price">¥15</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">深渊 · 深境螺旋</span><span class="row-desc">12层</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">🔥 包月套餐（委托+体力）</span><span class="row-desc">30DAY</span><span class="row-price">¥200</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">💎</span>
+        <span class="section-title" data-field="title">材料副本</span>
+        <span class="section-count" data-field="count">FARM</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">经验书副本</span><span class="row-desc">每轮</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">突破材料副本</span><span class="row-desc">每轮</span><span class="row-price">¥8</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">武器材料副本</span><span class="row-desc">每轮</span><span class="row-price">¥8</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">声骸经验副本</span><span class="row-desc">每轮</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">金币副本</span><span class="row-desc">每轮</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+  </div>
+
+  <button class="add-section-btn" onclick="addSection()">+ ADD SECTION</button>
+
+  <!-- 底部 -->
+  <div class="footer">
+    <div class="footer-line"></div>
+    <div class="footer-note">
+      CONTACT <span class="hl">小边代肝工作室</span> · SAFE · RELIABLE · REFUND GUARANTEED
+    </div>
+    <div class="footer-platform">
+      <span class="shield">🛡️</span>
+      支持平台店铺交易 · 交易有保障
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 数据流动画 =====
+(function() {
+  const container = document.getElementById('dataStream');
+  const chars = '01ABCDEF⟐ΔΩ∑π∞▲▽◆◇□■'.split('');
+  const streamChars = '01';
+
+  function spawnChar() {
+    const el = document.createElement('span');
+    el.className = 'char';
+    el.textContent = streamChars[Math.random() * streamChars.length | 0];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.animationDuration = (8 + Math.random() * 16) + 's';
+    el.style.animationDelay = Math.random() * 2 + 's';
+    el.style.fontSize = (9 + Math.random() * 4) + 'px';
+    el.style.opacity = '0';
+    container.appendChild(el);
+    const dur = parseFloat(el.style.animationDuration) * 1000 + parseFloat(el.style.animationDelay) * 1000;
+    setTimeout(() => el.remove(), dur + 500);
+  }
+
+  setInterval(spawnChar, 400);
+  for (let i = 0; i < 15; i++) setTimeout(spawnChar, i * 200);
+})();
+
+// ===== HUD 时钟 =====
+(function() {
+  function tick() {
+    const now = new Date();
+    const t = [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
+    document.getElementById('hudTime').textContent = t;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// ===== 密码保护编辑系统 =====
+let editMode = false;
+let authed = false;
+const EDIT_HASH = '0249ee3472d5fc25bd3de35d7fa12a063e93c8a20e742144e10b70342b1b7ed7';
+
+async function sha256(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function toggleEdit() {
+  if (!editMode && !authed) {
+    const input = prompt('🔒 请输入管理密码：');
+    if (!input) return;
+    const hash = await sha256(input);
+    if (hash !== EDIT_HASH) { showToast('密码错误，拒绝访问！'); return; }
+    authed = true;
+    showToast('密码正确，已解锁');
+  }
+  editMode = !editMode;
+  const btn = document.getElementById('btnEdit');
+  document.body.classList.toggle('edit-mode', editMode);
+  if (editMode) {
+    btn.textContent = '✅ 完成编辑';
+    btn.classList.add('active');
+    makeAllEditable(true);
+  } else {
+    btn.textContent = '✏️ 编辑模式';
+    btn.classList.remove('active');
+    makeAllEditable(false);
+    autoSave();
+    showToast('修改已保存');
+  }
+}
+function makeAllEditable(on) {
+  document.querySelectorAll('.section-title,.row-name,.row-price,.row-desc,.section-count').forEach(el => {
+    el.setAttribute('contenteditable', on ? 'true' : 'false');
+  });
+  if (!on) document.activeElement?.blur();
+}
+function addRow(btn) {
+  const t = btn.previousElementSibling;
+  const r = document.createElement('div');
+  r.className = 'price-row';
+  r.innerHTML = `<span class="row-name" contenteditable="${editMode}">新服务</span><span class="row-desc" contenteditable="${editMode}">---</span><span class="row-price" contenteditable="${editMode}"><span class="sym">¥</span><span class="num">0</span></span><button class="btn-del-row" onclick="delRow(this)">✕</button>`;
+  t.appendChild(r);
+  showToast('ROW ADDED');
+}
+function delRow(btn) {
+  const r = btn.parentElement;
+  r.style.opacity = '0'; r.style.transform = 'translateX(30px)'; r.style.transition = 'all 0.3s';
+  setTimeout(() => r.remove(), 300);
+}
+function addSection() {
+  const s = document.getElementById('sections');
+  const c = document.createElement('div');
+  c.className = 'section-card';
+  c.innerHTML = `<div class="section-header"><span class="icon">📌</span><span class="section-title" data-field="title" contenteditable="${editMode}">新板块</span><span class="section-count" data-field="count" contenteditable="${editMode}">TAG</span><button class="btn-del-section" onclick="delSection(this)">✕</button></div><div class="price-table"><div class="price-row"><span class="row-name" contenteditable="${editMode}">新服务</span><span class="row-desc" contenteditable="${editMode}">---</span><span class="row-price" contenteditable="${editMode}"><span class="sym">¥</span><span class="num">0</span></span><button class="btn-del-row" onclick="delRow(this)">✕</button></div></div><button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>`;
+  s.appendChild(c);
+  showToast('SECTION ADDED');
+}
+function delSection(btn) {
+  const c = btn.closest('.section-card');
+  c.style.opacity = '0'; c.style.transform = 'scale(0.96)'; c.style.transition = 'all 0.3s';
+  setTimeout(() => c.remove(), 300);
+}
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+function autoSave() {
+  try { localStorage.setItem('xbs_cyber_v4', document.getElementById('sections').innerHTML); } catch(e) {}
+}
+(function() {
+  const saved = localStorage.getItem('xbs_cyber_v4');
+  if (saved) {
+    document.getElementById('sections').innerHTML = saved;
+  }
+  // 转换所有价格文本为结构化格式
+  document.querySelectorAll('.price-table').forEach(table => {
+    table.querySelectorAll('.row-price').forEach(el => {
+      if (el.querySelector('.num')) return; // 已经转换过
+      const text = el.textContent.trim();
+      const sym = text.substring(0, 1);
+      const num = text.substring(1);
+      el.innerHTML = `<span class="sym">${sym}</span><span class="num">${num}</span>`;
+    });
+  });
+})();
+window.addEventListener('beforeunload', () => { if (editMode) autoSave(); });
+function exportPage() { showToast('WIN+SHIFT+S 截图'); window.print(); }
+document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'e') { e.preventDefault(); toggleEdit(); } });
+
+// 30分钟后自动清除认证，需重新输入密码
+setInterval(() => { if (authed && !editMode) authed = false; }, 30 * 60 * 1000);
+</script>
+</body>
+</html>

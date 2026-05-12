@@ -588,6 +588,46 @@
     .row-price { color: #0080a0; text-shadow: none; }
     .section-title { color: #0080a0; }
   }
+
+  /* ====== 移动端适配 ====== */
+  @media (max-width: 768px) {
+    .hud-bar { padding: 6px 12px; font-size: 9px; flex-wrap: wrap; gap: 4px; }
+    .hud-bar .hud-left, .hud-bar .hud-right { gap: 8px; }
+    .main-container { padding: 6px 10px 30px; }
+
+    .hero { padding: 24px 16px; text-align: center; }
+    .hero h1 { font-size: 22px; }
+    .hero .subtitle { font-size: 12px; }
+    .hero .tags { flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .hero .tags span { font-size: 10px; padding: 4px 8px; }
+
+    .welcome-banner { padding: 8px 12px; }
+    .welcome-banner .wb-title { font-size: 13px; }
+    .welcome-banner .wb-sub { font-size: 10px; }
+    .welcome-banner .wb-item { font-size: 10px; }
+
+    .toolbar { flex-wrap: wrap; gap: 6px; padding: 8px 0; }
+    .toolbar button { font-size: 11px; padding: 8px 12px; }
+
+    .section-card { padding: 0; }
+    .section-header { padding: 8px 12px; }
+    .section-header .icon { font-size: 18px; }
+    .section-title { font-size: 14px; }
+    .section-count { font-size: 9px; }
+
+    .price-row { padding: 10px 12px; flex-wrap: wrap; }
+    .row-name { font-size: 13px; flex: 1 1 100%; margin-bottom: 2px; }
+    .row-desc { font-size: 9px; width: 60px; text-align: left; }
+    .row-price { font-size: 15px; width: 80px; }
+    .row-price .num { font-size: 15px; }
+
+    .add-row-btn { font-size: 10px; }
+    .add-section-btn { font-size: 13px; }
+
+    .watermark-layer .wm { font-size: 14px; }
+
+    .footer { font-size: 10px; padding: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -644,6 +684,7 @@
   </div>
 
   <div class="toolbar">
+    <button onclick="downloadPage()">💾 下载文件</button>
     <button onclick="exportPage()">📸 截图导出</button>
     <button class="btn-edit" id="btnEdit" onclick="toggleEdit()">✏️ 编辑模式</button>
   </div>
@@ -675,70 +716,16 @@
 
     <div class="section-card">
       <div class="section-header">
-        <span class="icon">📜</span>
-        <span class="section-title" data-field="title">主线任务</span>
-        <span class="section-count" data-field="count">STORY</span>
+        <span class="icon">📋</span>
+        <span class="section-title" data-field="title">任务</span>
+        <span class="section-count" data-field="count">MISSIONS</span>
         <button class="btn-del-section" onclick="delSection(this)">✕</button>
       </div>
       <div class="price-table">
-        <div class="price-row"><span class="row-name">第一章</span><span class="row-desc">~20MIN</span><span class="row-price">¥15</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">第二章（上）</span><span class="row-desc">~40MIN</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">第二章（下）</span><span class="row-desc">~40MIN</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">第三章</span><span class="row-desc">~60MIN</span><span class="row-price">¥30</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">第四章</span><span class="row-desc">~80MIN</span><span class="row-price">¥45</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">第五章</span><span class="row-desc">~100MIN</span><span class="row-price">¥60</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">第六~七章</span><span class="row-desc">~150MIN</span><span class="row-price">¥80</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">第八~九章</span><span class="row-desc">~200MIN</span><span class="row-price">¥120</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-      </div>
-      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
-    </div>
-
-    <div class="section-card">
-      <div class="section-header">
-        <span class="icon">⚔️</span>
-        <span class="section-title" data-field="title">角色培养</span>
-        <span class="section-count" data-field="count">LEVEL UP</span>
-        <button class="btn-del-section" onclick="delSection(this)">✕</button>
-      </div>
-      <div class="price-table">
-        <div class="price-row"><span class="row-name">1-40级</span><span class="row-desc">含材料</span><span class="row-price">¥15</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">40-50级</span><span class="row-desc">含材料</span><span class="row-price">¥25</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">50-60级</span><span class="row-desc">含材料</span><span class="row-price">¥30</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">60-70级</span><span class="row-desc">含材料</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">70-80级</span><span class="row-desc">含材料</span><span class="row-price">¥80</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">80-90级</span><span class="row-desc">含材料</span><span class="row-price">¥120</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-      </div>
-      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
-    </div>
-
-    <div class="section-card">
-      <div class="section-header">
-        <span class="icon">✨</span>
-        <span class="section-title" data-field="title">技能/天赋</span>
-        <span class="section-count" data-field="count">SKILL</span>
-        <button class="btn-del-section" onclick="delSection(this)">✕</button>
-      </div>
-      <div class="price-table">
-        <div class="price-row"><span class="row-name">1-6级</span><span class="row-desc">每级</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">7-8级</span><span class="row-desc">每级</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">9-10级</span><span class="row-desc">每级</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-      </div>
-      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
-    </div>
-
-    <div class="section-card">
-      <div class="section-header">
-        <span class="icon">🔮</span>
-        <span class="section-title" data-field="title">声骸系统</span>
-        <span class="section-count" data-field="count">ECHO</span>
-        <button class="btn-del-section" onclick="delSection(this)">✕</button>
-      </div>
-      <div class="price-table">
-        <div class="price-row"><span class="row-name">声骸副本 1-13层</span><span class="row-desc">全通</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">声骸副本 14-19层</span><span class="row-desc">全通</span><span class="row-price">¥35</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">指定套装刷取</span><span class="row-desc">每件</span><span class="row-price">¥30</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">指定主词条</span><span class="row-desc">每件</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">完美胚子（双暴+攻击%）</span><span class="row-desc">每件</span><span class="row-price">¥80</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">主线任务</span><span class="row-desc">1幕</span><span class="row-price">¥1.5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">危行任务</span><span class="row-desc">1幕</span><span class="row-price">¥1.5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">伴星任务</span><span class="row-desc">1个</span><span class="row-price">¥3</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">全包</span><span class="row-desc">---</span><span class="row-price">¥30</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
       </div>
       <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
     </div>
@@ -746,48 +733,72 @@
     <div class="section-card">
       <div class="section-header">
         <span class="icon">🗺️</span>
-        <span class="section-title" data-field="title">探索度</span>
+        <span class="section-title" data-field="title">探索</span>
         <span class="section-count" data-field="count">EXPLORE</span>
         <button class="btn-del-section" onclick="delSection(this)">✕</button>
       </div>
       <div class="price-table">
-        <div class="price-row"><span class="row-name">单区域 50% 探索</span><span class="row-desc">~30MIN</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">单区域 100% 探索</span><span class="row-desc">~90MIN</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">全地图 100% 探索</span><span class="row-desc">含收集</span><span class="row-price">¥200</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">全包</span><span class="row-desc">---</span><span class="row-price">¥200</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">满探</span><span class="row-desc">1%</span><span class="row-price">¥2</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">全宝箱+无明位+溢彩画</span><span class="row-desc">1图</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
       </div>
       <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
     </div>
 
     <div class="section-card">
       <div class="section-header">
-        <span class="icon">📅</span>
-        <span class="section-title" data-field="title">日常/周常</span>
-        <span class="section-count" data-field="count">DAILY</span>
+        <span class="icon">🎊</span>
+        <span class="section-title" data-field="title">活动</span>
+        <span class="section-count" data-field="count">EVENTS</span>
         <button class="btn-del-section" onclick="delSection(this)">✕</button>
       </div>
       <div class="price-table">
-        <div class="price-row"><span class="row-name">每日委托</span><span class="row-desc">单次</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">体力清空</span><span class="row-desc">单次</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">周本 BOSS</span><span class="row-desc">每周</span><span class="row-price">¥15</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">深渊 · 深境螺旋</span><span class="row-desc">12层</span><span class="row-price">¥50</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">🔥 包月套餐（委托+体力）</span><span class="row-desc">30DAY</span><span class="row-price">¥200</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">全包 (7折)</span><span class="row-desc">---</span><span class="row-price">¥15</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">追月节</span><span class="row-desc">---</span><span class="row-price">¥4</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">老人鱼海</span><span class="row-desc">2次</span><span class="row-price">¥4</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">深坠异想奇境</span><span class="row-desc">---</span><span class="row-price">¥20</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">仿声战略</span><span class="row-desc">---</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">海算模演</span><span class="row-desc">---</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">肉鸽</span><span class="row-desc">---</span><span class="row-price">¥3</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">全包</span><span class="row-desc">---</span><span class="row-price">¥35</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
       </div>
       <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
     </div>
 
     <div class="section-card">
       <div class="section-header">
-        <span class="icon">💎</span>
-        <span class="section-title" data-field="title">材料副本</span>
-        <span class="section-count" data-field="count">FARM</span>
+        <span class="icon">🎯</span>
+        <span class="section-title" data-field="title">全息</span>
+        <span class="section-count" data-field="count">HOLOGRAM</span>
         <button class="btn-del-section" onclick="delSection(this)">✕</button>
       </div>
       <div class="price-table">
-        <div class="price-row"><span class="row-name">经验书副本</span><span class="row-desc">每轮</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">突破材料副本</span><span class="row-desc">每轮</span><span class="row-price">¥8</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">武器材料副本</span><span class="row-desc">每轮</span><span class="row-price">¥8</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">声骸经验副本</span><span class="row-desc">每轮</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
-        <div class="price-row"><span class="row-name">金币副本</span><span class="row-desc">每轮</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">战略1-5</span><span class="row-desc">单个</span><span class="row-price">¥2</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">战略6</span><span class="row-desc">---</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">全包</span><span class="row-desc">---</span><span class="row-price">¥35</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+      </div>
+      <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="icon">📦</span>
+        <span class="section-title" data-field="title">代肝所有材料</span>
+        <span class="section-count" data-field="count">MATERIALS</span>
+        <button class="btn-del-section" onclick="delSection(this)">✕</button>
+      </div>
+      <div class="price-table">
+        <div class="price-row"><span class="row-name">全包</span><span class="row-desc">---</span><span class="row-price">¥100</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">清空一图</span><span class="row-desc">3次</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">清空一图</span><span class="row-desc">2次</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">一把武器</span><span class="row-desc">5次</span><span class="row-price">¥4</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">一把武器</span><span class="row-desc">3次</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">一个角色</span><span class="row-desc">4次</span><span class="row-price">¥5</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">一个角色</span><span class="row-desc">2次</span><span class="row-price">¥10</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">声骸经验筒</span><span class="row-desc">×10</span><span class="row-price">¥1</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">密音筒小</span><span class="row-desc">×20</span><span class="row-price">¥1</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">密音筒中</span><span class="row-desc">×10</span><span class="row-price">¥1</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
+        <div class="price-row"><span class="row-name">密音筒大</span><span class="row-desc">×5</span><span class="row-price">¥1</span><button class="btn-del-row" onclick="delRow(this)">✕</button></div>
       </div>
       <button class="add-row-btn" onclick="addRow(this)">+ ADD ROW</button>
     </div>
@@ -924,10 +935,10 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 function autoSave() {
-  try { localStorage.setItem('xbs_cyber_v4', document.getElementById('sections').innerHTML); } catch(e) {}
+  try { localStorage.setItem('xbs_cyber_v5', document.getElementById('sections').innerHTML); } catch(e) {}
 }
 (function() {
-  const saved = localStorage.getItem('xbs_cyber_v4');
+  const saved = localStorage.getItem('xbs_cyber_v5');
   if (saved) {
     document.getElementById('sections').innerHTML = saved;
   }
@@ -943,6 +954,26 @@ function autoSave() {
   });
 })();
 window.addEventListener('beforeunload', () => { if (editMode) autoSave(); });
+function downloadPage() {
+  if (editMode) autoSave();
+  const clone = document.documentElement.cloneNode(true);
+  clone.classList.remove('edit-mode');
+  const saved = localStorage.getItem('xbs_cyber_v5');
+  if (saved) {
+    const sec = clone.querySelector('#sections');
+    if (sec) sec.innerHTML = saved;
+  }
+  clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '\u5c0f\u8fb9\u4ee3\u809d\u4ef7\u76ee\u8868.html';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+  showToast('\u4e0b\u8f7d\u5b8c\u6210\uff01\u63a8\u9001\u5230 GitHub \u5373\u53ef\u66f4\u65b0\u7f51\u7ad9');
+}
 function exportPage() { showToast('WIN+SHIFT+S 截图'); window.print(); }
 document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'e') { e.preventDefault(); toggleEdit(); } });
 
